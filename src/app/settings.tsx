@@ -88,6 +88,7 @@ export default function Settings() {
           <ChevronRight size={16} color="hsl(0 0% 40%)" />
         </Pressable>
         <View className="mt-3" />
+        <View className="mt-3" />
         <Pressable
           onPress={() => {
             tap();
@@ -96,6 +97,17 @@ export default function Settings() {
           className="flex-row items-center justify-between"
         >
           <Text className="font-bodyMedium text-[15px] text-foreground">View pledge card</Text>
+          <ChevronRight size={16} color="hsl(0 0% 40%)" />
+        </Pressable>
+        <View className="mt-3" />
+        <Pressable
+          onPress={() => {
+            tap();
+            router.push("/studio");
+          }}
+          className="flex-row items-center justify-between"
+        >
+          <Text className="font-bodyMedium text-[15px] text-foreground">Content studio</Text>
           <ChevronRight size={16} color="hsl(0 0% 40%)" />
         </Pressable>
       </Section>

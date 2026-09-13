@@ -83,9 +83,16 @@ export default function Pledge() {
                 </Text>
               </View>
 
-              <Text className="mt-10 text-center font-display text-[9px] uppercase tracking-[0.35em] text-muted-foreground/50">
-                reset era
-              </Text>
+              <View className="mt-10 flex-row items-center justify-between">
+                <Text className="font-display text-[9px] uppercase tracking-[0.35em] text-muted-foreground/50">
+                  reset era
+                </Text>
+                {profile.alias ? (
+                  <Text className="font-displayBold text-[11px] tracking-[0.15em] text-foreground/80">
+                    {profile.alias}
+                  </Text>
+                ) : null}
+              </View>
             </View>
           </LinearGradient>
         </ViewShot>
