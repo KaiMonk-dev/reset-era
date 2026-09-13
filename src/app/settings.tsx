@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import { Redirect } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { ChevronRight, RotateCcw } from "lucide-react-native";
@@ -16,7 +17,7 @@ export default function Settings() {
   const reset = useEra((s) => s.reset);
   const [confirming, setConfirming] = useState(false);
 
-  if (!profile) return null;
+  if (!profile) return <Redirect href="/quiz" />;
   const completedCount = Object.keys(log).length;
 
   const restartArc = () => {

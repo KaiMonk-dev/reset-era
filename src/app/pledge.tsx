@@ -1,5 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import { Redirect } from "expo-router";
 import { useRef, useState } from "react";
 import { Pressable, ScrollView, TextInput, View } from "react-native";
 import ViewShot, { type ViewShotRef } from "react-native-view-shot";
@@ -21,7 +22,7 @@ export default function Pledge() {
   const cardRef = useRef<ViewShotRef>(null);
   const [exported, setExported] = useState(false);
 
-  if (!profile) return null;
+  if (!profile) return <Redirect href="/quiz" />;
   const day1 = new Date(profile.startedAt).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",

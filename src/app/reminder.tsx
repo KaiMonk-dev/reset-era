@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import { Redirect } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { BellRing, Mail } from "lucide-react-native";
@@ -20,7 +21,7 @@ export default function Reminder() {
   const [saved, setSaved] = useState(false);
   const valid = /.+@.+\..+/.test(email);
 
-  if (!profile) return null;
+  if (!profile) return <Redirect href="/quiz" />;
 
   return (
     <ScrollView contentContainerClassName="min-h-full bg-background px-5 pb-14 pt-14 pt-safe">

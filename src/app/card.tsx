@@ -1,5 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Redirect } from "expo-router";
 import { useRef, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import ViewShot, { type ViewShotRef } from "react-native-view-shot";
@@ -33,7 +34,7 @@ export default function Card() {
   const cardRef = useRef<ViewShotRef>(null);
   const [shared, setShared] = useState(false);
 
-  if (!profile) return null;
+  if (!profile) return <Redirect href="/quiz" />;
   const isFinal = final === "1";
   const day = isFinal ? ARC_DAYS : Math.min(ARC_DAYS, Math.max(1, dayNum(profile.startedAt)));
   const score = computeScore(log, profile.anchor, day, profile.comebackDone);
