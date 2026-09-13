@@ -10,4 +10,6 @@ create table if not exists public.subscribers (
 
 alter table public.subscribers enable row level security;
 
--- V0: service-role only access (edge function uses service key; no public anon access)
+-- V0: anon can subscribe (insert-only); reads/updates are service-role only
+create policy "anon can subscribe" on public.subscribers
+  for insert to anon with check (true);

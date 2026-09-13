@@ -93,6 +93,21 @@ export default function Reminder() {
           setSaved(true);
           success();
           track("reminder_captured", { time });
+          // durable capture when Supabase env is configured (V0: localStorage always works)
+          const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
+          const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+          if (url && key) {
+            void fetch(`${url}/rest/v1/subscribers`, {
+              method: "POST",
+              headers: {
+                apikey: key,
+                authorization: `Bearer ${key}`,
+                "content-type": "application/json",
+                prefer: "resolution=merge-duplicates",
+              },
+              body: JSON.stringify({ email: email.trim(), reminder_time: time }),
+            }).catch(() => undefined);
+          }
           setTimeout(() => router.replace("/today"), 900);
         }}
         className="mt-9 h-12 rounded-lg"
