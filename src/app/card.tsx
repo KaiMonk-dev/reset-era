@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import ViewShot, { type ViewShotRef } from "react-native-view-shot";
-import { ArrowLeft, Flame, Share, TrendingUp } from "lucide-react-native";
+import { ArrowLeft, ArrowRight, Flame, Share, TrendingUp } from "lucide-react-native";
 import { MotiView } from "moti";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
@@ -46,7 +46,7 @@ export default function Card() {
       </Text>
       <Text className="mb-7 text-center font-body text-[14px] text-muted-foreground">
         {isFinal
-          ? "Seven days. The bars moved because you did."
+          ? "Day 1 → Day 7. The numbers moved because you did."
           : "This is the honest screenshot nobody else has."}
       </Text>
 
@@ -74,52 +74,111 @@ export default function Card() {
               </View>
 
               {/* momentum — the number */}
-              <View className="mt-6 flex-row items-end justify-between">
-                <View
-                  style={{
-                    shadowColor: "hsl(0 0% 96%)",
-                    shadowOpacity: 0.55,
-                    shadowRadius: 28,
-                    shadowOffset: { width: 0, height: 0 },
-                  }}
-                >
-                  <Text className="font-displayBold text-[64px] leading-[60px] text-gold">
-                    {score.momentum}
-                  </Text>
-                </View>
-                <View className="items-end pb-1.5">
+              {isFinal ? (
+                <View className="mt-5">
                   <Text className="font-display text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-                    momentum
+                    momentum · day 1 → day {day}
                   </Text>
-                  <View className="mt-1 flex-row items-center gap-1">
-                    <TrendingUp size={11} color="hsl(240 8% 45%)" />
+                  <View className="mt-2 flex-row items-baseline gap-3">
+                    <Text className="font-displayBold text-[40px] leading-[44px] text-muted-foreground/40">
+                      0
+                    </Text>
+                    <ArrowRight size={20} color="hsl(0 0% 58%)" />
+                    <Text
+                      className="font-displayBold text-[56px] leading-[56px] text-foreground"
+                      style={{
+                        shadowColor: "hsl(0 0% 96%)",
+                        shadowOpacity: 0.35,
+                        shadowRadius: 20,
+                        shadowOffset: { width: 0, height: 0 },
+                      }}
+                    >
+                      {score.momentum}
+                    </Text>
+                  </View>
+                  <View className="mt-1.5 flex-row items-center gap-1">
+                    <TrendingUp size={11} color="hsl(0 0% 58%)" />
                     <Text className="font-body text-[11px] text-muted-foreground">
-                      streak {score.streak}d
+                      streak {score.streak}d · {score.comebackBonus / 5} comebacks
                     </Text>
                   </View>
                 </View>
-              </View>
+              ) : (
+                <View className="mt-6 flex-row items-end justify-between">
+                  <View
+                    style={{
+                      shadowColor: "hsl(0 0% 96%)",
+                      shadowOpacity: 0.55,
+                      shadowRadius: 28,
+                      shadowOffset: { width: 0, height: 0 },
+                    }}
+                  >
+                    <Text className="font-displayBold text-[64px] leading-[60px] text-gold">
+                      {score.momentum}
+                    </Text>
+                  </View>
+                  <View className="items-end pb-1.5">
+                    <Text className="font-display text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+                      momentum
+                    </Text>
+                    <View className="mt-1 flex-row items-center gap-1">
+                      <TrendingUp size={11} color="hsl(240 8% 45%)" />
+                      <Text className="font-body text-[11px] text-muted-foreground">
+                        streak {score.streak}d
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
 
-              {/* stat bars */}
-              <View className="mt-6 gap-3.5">
-                {BARS.map((b) => (
-                  <View key={b.key}>
-                    <View className="mb-1.5 flex-row items-center justify-between">
+              {/* stat bars / recap deltas */}
+              {isFinal ? (
+                <View className="mt-6 gap-2.5">
+                  {BARS.map((b) => (
+                    <View
+                      key={b.key}
+                      className="flex-row items-center justify-between border-b border-border/50 pb-2.5"
+                    >
                       <Text className="font-display text-[11px] uppercase tracking-[0.15em] text-foreground/90">
                         {b.label}
                       </Text>
-                      <Text className="font-bodyMedium text-[12px] text-muted-foreground">
-                        {score.bars[b.key]}
-                      </Text>
+                      <View className="flex-row items-baseline gap-2">
+                        <Text className="font-displayBold text-[15px] text-muted-foreground/40">
+                          0
+                        </Text>
+                        <Text className="font-body text-[11px] text-muted-foreground">→</Text>
+                        <Text className="font-displayBold text-[17px] text-foreground">
+                          {score.bars[b.key]}
+                        </Text>
+                        <View className="w-6" />
+                        <Text className="font-bodyMedium text-[12px] text-muted-foreground">
+                          {score.bars[b.key] > 0 ? `+${score.bars[b.key]}` : "±0"}
+                        </Text>
+                      </View>
                     </View>
-                    <Progress
-                      value={Math.min(100, score.bars[b.key])}
-                      className="h-[5px] rounded-full bg-secondary"
-                      indicatorClassName={`rounded-full ${b.colorClass}`}
-                    />
-                  </View>
-                ))}
-              </View>
+                  ))}
+                </View>
+              ) : (
+                <View className="mt-6 gap-3.5">
+                  {BARS.map((b) => (
+                    <View key={b.key}>
+                      <View className="mb-1.5 flex-row items-center justify-between">
+                        <Text className="font-display text-[11px] uppercase tracking-[0.15em] text-foreground/90">
+                          {b.label}
+                        </Text>
+                        <Text className="font-bodyMedium text-[12px] text-muted-foreground">
+                          {score.bars[b.key]}
+                        </Text>
+                      </View>
+                      <Progress
+                        value={Math.min(100, score.bars[b.key])}
+                        className="h-[5px] rounded-full bg-secondary"
+                        indicatorClassName={`rounded-full ${b.colorClass}`}
+                      />
+                    </View>
+                  ))}
+                </View>
+              )}
 
               <Separator className="my-5" />
 
