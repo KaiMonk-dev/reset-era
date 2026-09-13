@@ -1,20 +1,27 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useRef } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import ViewShot, { type ViewShotRef } from "react-native-view-shot";
+import { ArrowLeft, Flame, Share, TrendingUp } from "lucide-react-native";
+import { MotiView } from "moti";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { Text } from "@/components/ui/text";
 import { track } from "@/lib/analytics";
-import { SEASON_BADGE, ARC_DAYS } from "@/lib/plan";
+import { ARC_DAYS, SEASON_BADGE } from "@/lib/plan";
+import { tap } from "@/lib/haptics";
 import { computeScore } from "@/lib/score";
 import { useEra } from "@/lib/store";
 import { exportCard } from "@/lib/share";
 
-const BAR_LABELS = {
-  discipline: "Discipline",
-  strength: "Strength",
-  focus: "Focus",
-  sleep: "Sleep",
-  money: "Money",
-} as const;
+const BARS = [
+  { key: "discipline", label: "Discipline", colorClass: "bg-primary" },
+  { key: "strength", label: "Strength", colorClass: "bg-primary/70" },
+  { key: "focus", label: "Focus", colorClass: "bg-gold" },
+  { key: "sleep", label: "Sleep", colorClass: "bg-[hsl(220_60%_58%)]" },
+  { key: "money", label: "Money", colorClass: "bg-[hsl(150_55%_45%)]" },
+] as const;
 
 export default function Card() {
   const router = useRouter();
@@ -30,99 +37,160 @@ export default function Card() {
   const alias = profile.alias || "LOCKED IN";
 
   return (
-    <ScrollView contentContainerClassName="min-h-full items-center bg-ink px-6 pb-20 pt-16">
-      <Text className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-ember">
+    <ScrollView contentContainerClassName="min-h-full items-center bg-background px-5 pb-14 pt-14">
+      <Text className="mb-2 font-display text-[11px] font-medium uppercase tracking-[0.35em] text-primary">
         {isFinal ? "Day 7 · Arc complete" : "Your stat card"}
       </Text>
-      <Text className="mb-8 text-center text-2xl font-bold text-white">
+      <Text className="mb-7 text-center font-body text-[14px] text-muted-foreground">
         {isFinal
           ? "Seven days. The bars moved because you did."
           : "This is the honest screenshot nobody else has."}
       </Text>
 
-      <ViewShot ref={cardRef} options={{ format: "png", quality: 1 }}>
-        <View className="w-[340px] rounded-2xl border border-line bg-panel p-6">
-          <View className="flex-row items-center justify-between">
-            <Text className="text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-500">
-              {SEASON_BADGE}
-            </Text>
-            <Text className="text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-500">
-              Day {day}
-            </Text>
-          </View>
-
-          <Text className="mt-6 text-6xl font-black text-gold">{score.momentum}</Text>
-          <Text className="text-[10px] uppercase tracking-[0.3em] text-zinc-500">
-            momentum score
-          </Text>
-
-          <View className="mt-6 gap-4">
-            {(Object.keys(BAR_LABELS) as (keyof typeof BAR_LABELS)[]).map((k) => (
-              <View key={k}>
-                <View className="mb-1 flex-row justify-between">
-                  <Text className="text-xs font-semibold text-zinc-300">{BAR_LABELS[k]}</Text>
-                  <Text className="text-xs text-zinc-500">{score.bars[k]}</Text>
+      <MotiView
+        from={{ opacity: 0, translateY: 20, scale: 0.98 }}
+        animate={{ opacity: 1, translateY: 0, scale: 1 }}
+        transition={{ type: "spring", damping: 22, stiffness: 190 }}
+      >
+        <ViewShot ref={cardRef} options={{ format: "png", quality: 1 }}>
+          <LinearGradient
+            colors={["hsl(240 15% 7%)", "hsl(242 20% 11%)", "hsl(246 22% 6%)"]}
+            style={{ width: 340, borderRadius: 16, borderWidth: 1, borderColor: "hsl(240 11% 17%)" }}
+          >
+            <View className="w-full rounded-2xl p-6">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center gap-1.5">
+                  <Flame size={11} color="hsl(16 100% 56%)" />
+                  <Text className="font-display text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                    {SEASON_BADGE}
+                  </Text>
                 </View>
-                <View className="h-2 w-full rounded bg-line">
-                  <View
-                    className="h-2 rounded bg-ember"
-                    style={{ width: `${Math.min(100, score.bars[k])}%` }}
-                  />
+                <Text className="font-display text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                  Day {day}
+                </Text>
+              </View>
+
+              {/* momentum — the number */}
+              <View className="mt-6 flex-row items-end justify-between">
+                <View
+                  style={{
+                    shadowColor: "hsl(40 100% 59%)",
+                    shadowOpacity: 0.55,
+                    shadowRadius: 28,
+                    shadowOffset: { width: 0, height: 0 },
+                  }}
+                >
+                  <Text className="font-displayBold text-[64px] leading-[60px] text-gold">
+                    {score.momentum}
+                  </Text>
+                </View>
+                <View className="items-end pb-1.5">
+                  <Text className="font-display text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+                    momentum
+                  </Text>
+                  <View className="mt-1 flex-row items-center gap-1">
+                    <TrendingUp size={11} color="hsl(240 8% 45%)" />
+                    <Text className="font-body text-[11px] text-muted-foreground">
+                      streak {score.streak}d
+                    </Text>
+                  </View>
                 </View>
               </View>
-            ))}
-          </View>
 
-          <View className="mt-6 flex-row justify-between border-t border-line pt-4">
-            <View>
-              <Text className="text-[9px] uppercase tracking-widest text-zinc-600">streak</Text>
-              <Text className="text-lg font-bold text-white">{score.streak}d</Text>
-            </View>
-            <View>
-              <Text className="text-[9px] uppercase tracking-widest text-zinc-600">comebacks</Text>
-              <Text className="text-lg font-bold text-white">{score.comebackBonus / 5}</Text>
-            </View>
-            <View>
-              <Text className="text-[9px] uppercase tracking-widest text-zinc-600">alias</Text>
-              <Text className="text-lg font-bold text-white">{alias}</Text>
-            </View>
-          </View>
+              {/* stat bars */}
+              <View className="mt-6 gap-3.5">
+                {BARS.map((b) => (
+                  <View key={b.key}>
+                    <View className="mb-1.5 flex-row items-center justify-between">
+                      <Text className="font-display text-[11px] uppercase tracking-[0.15em] text-foreground/90">
+                        {b.label}
+                      </Text>
+                      <Text className="font-bodyMedium text-[12px] text-muted-foreground">
+                        {score.bars[b.key]}
+                      </Text>
+                    </View>
+                    <Progress
+                      value={Math.min(100, score.bars[b.key])}
+                      className="h-[5px] rounded-full bg-secondary"
+                      indicatorClassName={`rounded-full ${b.colorClass}`}
+                    />
+                  </View>
+                ))}
+              </View>
 
-          <Text className="mt-6 text-center text-[9px] uppercase tracking-[0.3em] text-zinc-600">
-            reset era · v0 · real actions only
-          </Text>
-        </View>
-      </ViewShot>
+              <Separator className="my-5" />
+
+              <View className="flex-row items-end justify-between">
+                <View>
+                  <Text className="font-display text-[9px] uppercase tracking-[0.25em] text-muted-foreground/70">
+                    alias
+                  </Text>
+                  <Text className="mt-0.5 font-displayBold text-[15px] text-foreground">
+                    {alias}
+                  </Text>
+                </View>
+                <View>
+                  <Text className="font-display text-[9px] uppercase tracking-[0.25em] text-muted-foreground/70">
+                    comebacks
+                  </Text>
+                  <Text className="mt-0.5 text-right font-displayBold text-[15px] text-foreground">
+                    {score.comebackBonus / 5}
+                  </Text>
+                </View>
+              </View>
+
+              <Text className="mt-6 text-center font-display text-[9px] uppercase tracking-[0.35em] text-muted-foreground/50">
+                reset era · real actions only
+              </Text>
+            </View>
+          </LinearGradient>
+        </ViewShot>
+      </MotiView>
 
       <Pressable
         onPress={async () => {
           const ok = await exportCard(cardRef.current, `reset-era-day${day}.png`);
-          if (ok) track("share_card", { card: isFinal ? "day7" : "stat" });
+          if (ok) {
+            tap();
+            track("share_card", { card: isFinal ? "day7" : "stat" });
+          }
         }}
-        className="mt-8 rounded-xl border border-line bg-panel px-8 py-4"
+        className="mt-8 w-full flex-row items-center justify-center rounded-lg border border-border bg-card py-4"
       >
-        <Text className="text-base font-semibold text-white">Save card (PNG)</Text>
+        <Share size={16} color="hsl(240 10% 96%)" />
+        <Text className="ml-2 font-bodyMedium text-[14px] text-foreground">Save card (PNG)</Text>
       </Pressable>
 
       {isFinal && (
-        <View className="mt-10 w-full rounded-xl border border-gold/40 bg-gold/10 p-5">
-          <Text className="text-base font-bold text-white">Want the full 30-day program?</Text>
-          <Text className="mt-1 text-sm text-zinc-300">
+        <MotiView
+          from={{ opacity: 0, translateY: 16 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: "spring", damping: 20, stiffness: 200, delay: 200 }}
+          className="mt-8 w-full rounded-lg border border-gold/40 bg-gold/10 p-5"
+        >
+          <Text className="font-bodyBold text-[15px] text-foreground">
+            Want the full 30-day program?
+          </Text>
+          <Text className="mt-1 font-body text-[13px] text-foreground/70">
             Seasons, all eras, every card. $9.99/mo or $39.99/yr when it ships.
           </Text>
           <Pressable
-            onPress={() => track("price_reveal_cta", { placement: "day7-final" })}
-            className="mt-4 rounded-xl bg-gold py-4"
+            onPress={() => {
+              tap();
+              track("price_reveal_cta", { placement: "day7-final" });
+            }}
+            className="mt-4 h-11 items-center justify-center rounded-lg bg-gold"
           >
-            <Text className="text-center text-base font-bold text-ink">
-              Tell me when it's live →
-            </Text>
+            <Text className="font-bodyBold text-[14px] text-ink">Tell me when it's live →</Text>
           </Pressable>
-        </View>
+        </MotiView>
       )}
 
-      <Pressable onPress={() => router.push("/today")} className="mt-8 py-3">
-        <Text className="text-sm text-zinc-400">← Back to today</Text>
+      <Pressable onPress={() => router.push("/today")} className="mt-6 flex-row items-center py-2">
+        <ArrowLeft size={14} color="hsl(240 8% 58%)" />
+        <Text className="ml-1.5 font-bodyMedium text-[13px] text-muted-foreground">
+          Back to today
+        </Text>
       </Pressable>
     </ScrollView>
   );

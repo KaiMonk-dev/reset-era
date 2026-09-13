@@ -1,9 +1,16 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
-import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { Pressable, ScrollView, TextInput, View } from "react-native";
 import ViewShot, { type ViewShotRef } from "react-native-view-shot";
+import { Flame, Lock } from "lucide-react-native";
+import { MotiView } from "moti";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Text } from "@/components/ui/text";
 import { track } from "@/lib/analytics";
 import { SEASON_BADGE } from "@/lib/plan";
+import { tap } from "@/lib/haptics";
 import { useEra } from "@/lib/store";
 import { exportCard } from "@/lib/share";
 
@@ -18,58 +25,84 @@ export default function Pledge() {
   const day1 = new Date(profile.startedAt).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
-    year: "numeric",
   });
 
   return (
-    <ScrollView contentContainerClassName="min-h-full items-center bg-ink px-6 pb-16 pt-16">
-      <Text className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-ember">
-        Day 1 · The Pledge
-      </Text>
-      <Text className="mb-8 text-center text-2xl font-bold text-white">
-        Screenshot this. Not for them — for Day 30 you.
-      </Text>
+    <ScrollView contentContainerClassName="min-h-full items-center bg-background px-5 pb-14 pt-14">
+      <MotiView
+        from={{ opacity: 0, translateY: 18 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: "spring", damping: 22, stiffness: 200 }}
+        className="w-full items-center"
+      >
+        <Text className="mb-2 font-display text-[11px] font-medium uppercase tracking-[0.35em] text-primary">
+          Day 1 · The Pledge
+        </Text>
+        <Text className="mb-7 text-center font-body text-[14px] text-muted-foreground">
+          Screenshot this. Not for them — for Day 30 you.
+        </Text>
 
-      <ViewShot ref={cardRef} options={{ format: "png", quality: 1 }}>
-        <View className="w-[320px] rounded-2xl border border-line bg-panel p-6">
-          <View className="flex-row items-center justify-between">
-            <Text className="text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-500">
-              {SEASON_BADGE}
-            </Text>
-            <Text className="text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-500">
-              Day 1
-            </Text>
-          </View>
-          <Text className="mt-10 text-center text-4xl font-black leading-tight text-white">
-            Locked in.
-          </Text>
-          <Text className="mt-2 text-center text-4xl font-black text-zinc-600">
-            Tell nobody.
-          </Text>
-          <View className="mt-10 gap-2">
-            <Text className="text-center text-sm text-zinc-400">
-              Mission: <Text className="text-gold">{profile.planName}</Text>
-            </Text>
-            <Text className="text-center text-xs text-zinc-500">{day1} → Day 30</Text>
-          </View>
-          <Text className="mt-10 text-center text-[9px] uppercase tracking-[0.3em] text-zinc-600">
-            reset era · v0
-          </Text>
-        </View>
-      </ViewShot>
+        {/* the card — exportable */}
+        <ViewShot ref={cardRef} options={{ format: "png", quality: 1 }}>
+          <LinearGradient
+            colors={["hsl(240 15% 7%)", "hsl(240 18% 10%)", "hsl(245 20% 6%)"]}
+            style={{ width: 320, borderRadius: 16, borderWidth: 1, borderColor: "hsl(240 11% 17%)" }}
+          >
+            <View className="w-full rounded-2xl p-6">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center gap-1.5">
+                  <Flame size={11} color="hsl(16 100% 56%)" />
+                  <Text className="font-display text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                    {SEASON_BADGE}
+                  </Text>
+                </View>
+                <Text className="font-display text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                  Day 1
+                </Text>
+              </View>
+
+              <View className="mt-12 items-center">
+                <View className="mb-5 h-11 w-11 items-center justify-center rounded-full border border-primary/50 bg-primary/15">
+                  <Lock size={19} color="hsl(16 100% 56%)" />
+                </View>
+                <Text className="text-center font-displayBold text-[34px] leading-[36px] tracking-tight text-foreground">
+                  Locked in.
+                </Text>
+                <Text className="text-center font-displayBold text-[34px] leading-[36px] tracking-tight text-muted-foreground/60">
+                  Tell nobody.
+                </Text>
+              </View>
+
+              <View className="mt-12">
+                <Separator className="mb-4" />
+                <Text className="text-center font-body text-[13px] text-muted-foreground">
+                  Mission · <Text className="text-gold">{profile.planName}</Text>
+                </Text>
+                <Text className="mt-1 text-center font-display text-[11px] uppercase tracking-[0.2em] text-muted-foreground/70">
+                  {day1} → Day 30
+                </Text>
+              </View>
+
+              <Text className="mt-10 text-center font-display text-[9px] uppercase tracking-[0.35em] text-muted-foreground/50">
+                reset era
+              </Text>
+            </View>
+          </LinearGradient>
+        </ViewShot>
+      </MotiView>
 
       <View className="mt-8 w-full">
-        <Text className="mb-2 text-sm text-zinc-400">
+        <Text className="mb-2 font-body text-[13px] text-muted-foreground">
           Name on your card — an alias works. No real names needed.
         </Text>
         <TextInput
           value={profile.alias}
           onChangeText={(t) => setProfile({ ...profile, alias: t })}
           placeholder="e.g. WINTER ARC GUY"
-          placeholderTextColor="#5A5A66"
+          placeholderTextColor="hsl(240 8% 40%)"
           maxLength={20}
           autoCapitalize="characters"
-          className="rounded-xl border border-line bg-panel p-4 text-base text-white"
+          className="rounded-lg border border-input bg-card p-4 font-display text-[15px] uppercase tracking-widest text-foreground"
         />
       </View>
 
@@ -77,21 +110,22 @@ export default function Pledge() {
         onPress={async () => {
           const ok = await exportCard(cardRef.current, "reset-era-day1.png");
           setExported(!!ok);
+          tap();
           track("share_card", { card: "day1-pledge" });
         }}
-        className="mt-8 rounded-xl border border-line bg-panel px-8 py-4"
+        className="mt-7 w-full rounded-lg border border-border bg-card py-4"
       >
-        <Text className="text-base font-semibold text-white">
+        <Text className="text-center font-bodyMedium text-[14px] text-foreground">
           {exported ? "Saved ✓" : "Save pledge card"}
         </Text>
       </Pressable>
 
-      <Pressable
+      <Button
         onPress={() => router.push("/reminder")}
-        className="mt-4 w-full rounded-xl bg-ember py-4"
+        className="mt-3 h-12 w-full rounded-lg"
       >
-        <Text className="text-center text-base font-bold text-white">Continue</Text>
-      </Pressable>
+        <Text className="font-bodyBold text-[15px] text-primary-foreground">Continue</Text>
+      </Button>
     </ScrollView>
   );
 }
