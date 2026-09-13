@@ -39,7 +39,7 @@ export default function Today() {
   const allDone = comeback ? !!log[`${state.day}-anchor`] : doneToday === 3;
 
   return (
-    <ScrollView contentContainerClassName="min-h-full bg-background px-5 pb-16 pt-14">
+    <ScrollView contentContainerClassName="min-h-full bg-background px-5 pb-16 pt-14 pt-safe">
       {/* header */}
       <View className="mb-7 flex-row items-end justify-between">
         <View>
@@ -90,8 +90,8 @@ export default function Today() {
           const iconColor = done
             ? "hsl(240 8% 45%)"
             : isAnchor
-              ? "hsl(16 100% 56%)"
-              : "hsl(40 100% 59%)";
+              ? "hsl(0 0% 96%)"
+              : "hsl(0 0% 72%)";
           return (
             <MotiView
               key={key}
@@ -144,13 +144,17 @@ export default function Today() {
                     {q.detail}
                   </Text>
                 </View>
-                <View
+                <MotiView
+                  key={done ? "d" : "u"}
+                  from={{ scale: done ? 0.4 : 1 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", damping: 12, stiffness: 320 }}
                   className={`ml-2 h-6 w-6 items-center justify-center rounded-full border ${
                     done ? "border-primary bg-primary" : "border-border"
                   }`}
                 >
                   {done && <Check size={14} color="hsl(240 15% 6%)" strokeWidth={3} />}
-                </View>
+                </MotiView>
               </Pressable>
             </MotiView>
           );
@@ -166,7 +170,7 @@ export default function Today() {
           className="mt-6 rounded-lg border border-primary/40 bg-primary/10 p-5"
         >
           <View className="flex-row items-center gap-2">
-            <Flame size={17} color="hsl(16 100% 56%)" />
+            <Flame size={17} color="hsl(0 0% 96%)" />
             <Text className="font-bodyBold text-[15px] text-foreground">
               Day {state.day} locked.{" "}
               {score.streak > 1 ? `${score.streak} days straight.` : "It counts."}
@@ -232,8 +236,8 @@ export default function Today() {
           <Text className="font-bodyMedium text-[13px] text-muted-foreground">Stat card</Text>
         </Pressable>
         <Separator orientation="vertical" className="h-4" />
-        <Pressable onPress={() => router.push("/reminder")} className="flex-1 items-end py-2">
-          <Text className="font-bodyMedium text-[13px] text-muted-foreground">Reminders</Text>
+        <Pressable onPress={() => router.push("/settings")} className="flex-1 items-end py-2">
+          <Text className="font-bodyMedium text-[13px] text-muted-foreground">Settings</Text>
         </Pressable>
       </View>
     </ScrollView>

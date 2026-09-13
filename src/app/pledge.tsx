@@ -28,7 +28,7 @@ export default function Pledge() {
   });
 
   return (
-    <ScrollView contentContainerClassName="min-h-full items-center bg-background px-5 pb-14 pt-14">
+    <ScrollView contentContainerClassName="min-h-full items-center bg-background px-5 pb-14 pt-14 pt-safe">
       <MotiView
         from={{ opacity: 0, translateY: 18 }}
         animate={{ opacity: 1, translateY: 0 }}
@@ -51,7 +51,7 @@ export default function Pledge() {
             <View className="w-full rounded-2xl p-6">
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-1.5">
-                  <Flame size={11} color="hsl(16 100% 56%)" />
+                  <Flame size={11} color="hsl(0 0% 96%)" />
                   <Text className="font-display text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
                     {SEASON_BADGE}
                   </Text>
@@ -63,7 +63,7 @@ export default function Pledge() {
 
               <View className="mt-12 items-center">
                 <View className="mb-5 h-11 w-11 items-center justify-center rounded-full border border-primary/50 bg-primary/15">
-                  <Lock size={19} color="hsl(16 100% 56%)" />
+                  <Lock size={19} color="hsl(0 0% 96%)" />
                 </View>
                 <Text className="text-center font-displayBold text-[34px] leading-[36px] tracking-tight text-foreground">
                   Locked in.

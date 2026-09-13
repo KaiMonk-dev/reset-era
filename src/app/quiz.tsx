@@ -76,7 +76,7 @@ export default function Quiz() {
   return (
     <ScrollView
       className="flex-1 bg-background"
-      contentContainerClassName="min-h-full px-5 pb-14 pt-16"
+      contentContainerClassName="min-h-full px-5 pb-14 pt-16 pt-safe"
     >
       <View className="mb-9">
         <Text className="font-display text-[11px] font-medium uppercase tracking-[0.35em] text-primary">

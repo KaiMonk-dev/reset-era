@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import ViewShot, { type ViewShotRef } from "react-native-view-shot";
 import { ArrowLeft, Flame, Share, TrendingUp } from "lucide-react-native";
@@ -16,11 +16,11 @@ import { useEra } from "@/lib/store";
 import { exportCard } from "@/lib/share";
 
 const BARS = [
-  { key: "discipline", label: "Discipline", colorClass: "bg-primary" },
-  { key: "strength", label: "Strength", colorClass: "bg-primary/70" },
-  { key: "focus", label: "Focus", colorClass: "bg-gold" },
-  { key: "sleep", label: "Sleep", colorClass: "bg-[hsl(220_60%_58%)]" },
-  { key: "money", label: "Money", colorClass: "bg-[hsl(150_55%_45%)]" },
+  { key: "discipline", label: "Discipline", colorClass: "bg-foreground" },
+  { key: "strength", label: "Strength", colorClass: "bg-foreground/75" },
+  { key: "focus", label: "Focus", colorClass: "bg-foreground/55" },
+  { key: "sleep", label: "Sleep", colorClass: "bg-foreground/40" },
+  { key: "money", label: "Money", colorClass: "bg-foreground/25" },
 ] as const;
 
 export default function Card() {
@@ -28,7 +28,10 @@ export default function Card() {
   const { final } = useLocalSearchParams<{ final?: string }>();
   const profile = useEra((s) => s.profile);
   const log = useEra((s) => s.log);
+  const setProfile = useEra((s) => s.setProfile);
+  const reset = useEra((s) => s.reset);
   const cardRef = useRef<ViewShotRef>(null);
+  const [shared, setShared] = useState(false);
 
   if (!profile) return null;
   const isFinal = final === "1";
@@ -37,7 +40,7 @@ export default function Card() {
   const alias = profile.alias || "LOCKED IN";
 
   return (
-    <ScrollView contentContainerClassName="min-h-full items-center bg-background px-5 pb-14 pt-14">
+    <ScrollView contentContainerClassName="min-h-full items-center bg-background px-5 pb-14 pt-14 pt-safe">
       <Text className="mb-2 font-display text-[11px] font-medium uppercase tracking-[0.35em] text-primary">
         {isFinal ? "Day 7 · Arc complete" : "Your stat card"}
       </Text>
@@ -60,7 +63,7 @@ export default function Card() {
             <View className="w-full rounded-2xl p-6">
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-1.5">
-                  <Flame size={11} color="hsl(16 100% 56%)" />
+                  <Flame size={11} color="hsl(0 0% 96%)" />
                   <Text className="font-display text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
                     {SEASON_BADGE}
                   </Text>
@@ -74,7 +77,7 @@ export default function Card() {
               <View className="mt-6 flex-row items-end justify-between">
                 <View
                   style={{
-                    shadowColor: "hsl(40 100% 59%)",
+                    shadowColor: "hsl(0 0% 96%)",
                     shadowOpacity: 0.55,
                     shadowRadius: 28,
                     shadowOffset: { width: 0, height: 0 },
@@ -149,16 +152,19 @@ export default function Card() {
 
       <Pressable
         onPress={async () => {
-          const ok = await exportCard(cardRef.current, `reset-era-day${day}.png`);
-          if (ok) {
+          const result = await exportCard(cardRef.current, `reset-era-day${day}.png`);
+          if (result) {
             tap();
-            track("share_card", { card: isFinal ? "day7" : "stat" });
+            setShared(result === "shared");
+            track("share_card", { card: isFinal ? "day7" : "stat", via: result });
           }
         }}
         className="mt-8 w-full flex-row items-center justify-center rounded-lg border border-border bg-card py-4"
       >
         <Share size={16} color="hsl(240 10% 96%)" />
-        <Text className="ml-2 font-bodyMedium text-[14px] text-foreground">Save card (PNG)</Text>
+        <Text className="ml-2 font-bodyMedium text-[14px] text-foreground">
+          {shared ? "Shared ✓" : "Save card (PNG)"}
+        </Text>
       </Pressable>
 
       {isFinal && (
@@ -179,9 +185,24 @@ export default function Card() {
               tap();
               track("price_reveal_cta", { placement: "day7-final" });
             }}
-            className="mt-4 h-11 items-center justify-center rounded-lg bg-gold"
+            className="mt-4 h-11 items-center justify-center rounded-lg bg-foreground"
           >
-            <Text className="font-bodyBold text-[14px] text-ink">Tell me when it's live →</Text>
+            <Text className="font-bodyBold text-[14px] text-background">
+              Tell me when it's live →
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              tap();
+              setProfile({ ...profile, startedAt: Date.now(), comebackDone: 0 });
+              reset();
+              router.replace("/today");
+            }}
+            className="mt-3 h-11 items-center justify-center rounded-lg border border-border"
+          >
+            <Text className="font-bodyMedium text-[13px] text-muted-foreground">
+              Restart the week
+            </Text>
           </Pressable>
         </MotiView>
       )}

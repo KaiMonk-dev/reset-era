@@ -23,14 +23,14 @@ export default function Reminder() {
   if (!profile) return null;
 
   return (
-    <ScrollView contentContainerClassName="min-h-full bg-background px-5 pb-14 pt-14">
+    <ScrollView contentContainerClassName="min-h-full bg-background px-5 pb-14 pt-14 pt-safe">
       <MotiView
         from={{ opacity: 0, translateY: 16 }}
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ type: "spring", damping: 22, stiffness: 200 }}
       >
         <View className="mb-6 h-12 w-12 items-center justify-center rounded-full border border-primary/40 bg-primary/10">
-          <BellRing size={20} color="hsl(16 100% 56%)" />
+          <BellRing size={20} color="hsl(0 0% 96%)" />
         </View>
         <Text className="mb-3 font-display text-[11px] font-medium uppercase tracking-[0.35em] text-muted-foreground">
           Daily reminder
